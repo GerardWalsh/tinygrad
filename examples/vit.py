@@ -44,6 +44,7 @@ img -= 0.5
 img /= 0.5
 
 out = m.forward(Tensor(img))
+import ipdb; ipdb.set_trace()
 outnp = out.numpy().ravel()
 choice = outnp.argmax()
 print(out.shape, choice, outnp[choice], lbls[choice])

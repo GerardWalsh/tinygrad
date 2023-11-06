@@ -9,7 +9,9 @@ class TransformerBlock:
     self.head_size = embed_dim // num_heads
     self.prenorm, self.act = prenorm, act
     self.dropout = dropout
-
+    # why are we instantiating a tuple? Decoder & encoder?
+    # uniform dist for encoder to learn?
+    # zeros for decoder because we want it turned off by default?
     self.query = (Tensor.scaled_uniform(embed_dim, embed_dim), Tensor.zeros(embed_dim))
     self.key = (Tensor.scaled_uniform(embed_dim, embed_dim), Tensor.zeros(embed_dim))
     self.value = (Tensor.scaled_uniform(embed_dim, embed_dim), Tensor.zeros(embed_dim))
@@ -24,12 +26,17 @@ class TransformerBlock:
 
   def attn(self, x):
     # x: (bs, time, embed_dim) -> (bs, time, embed_dim)
+    import ipdb; ipdb.set_trace()
+    # linear embedding of input embeddings to create q, k, v matrices
     query, key, value = [x.linear(*y).reshape(shape=(x.shape[0], -1, self.num_heads, self.head_size)).transpose(1,2) for y in [self.query, self.key, self.value]]
     attention = Tensor.scaled_dot_product_attention(query, key, value).transpose(1,2)
     return attention.reshape(shape=(x.shape[0], -1, self.num_heads * self.head_size)).linear(*self.out)
 
   def __call__(self, x):
     if self.prenorm:
+      import ipdb; ipdb.set_trace()
+      # x.shape = 1, 197, 196 
+      #  batch_size, num_tokens + 1 for class, embed_dim
       x = x + self.attn(x.layernorm().linear(*self.ln1)).dropout(self.dropout)
       x = x + self.act(x.layernorm().linear(*self.ln2).linear(*self.ff1)).linear(*self.ff2).dropout(self.dropout)
     else:
