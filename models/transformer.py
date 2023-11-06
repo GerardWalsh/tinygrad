@@ -3,6 +3,10 @@ from tinygrad.tensor import Tensor
 
 class TransformerBlock:
   def __init__(self, embed_dim, num_heads, ff_dim, prenorm=False, act=lambda x: x.relu(), dropout=0.1):
+    """
+    full fat transformer that supports GPT style models
+    encoder & decoder?
+    """
     assert embed_dim % num_heads == 0, "embed_dim must be divisible by num_heads"
 
     self.num_heads = num_heads
